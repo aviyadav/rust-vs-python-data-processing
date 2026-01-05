@@ -1,4 +1,4 @@
-# Data Processing Example
+# Data Processing Example - Python
 
 A high-performance Rust application for processing CSV event data using the Polars dataframe library.
 
