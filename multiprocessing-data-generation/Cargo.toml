@@ -1,0 +1,21 @@
+[package]
+name = "generate-transaction-data-mp"
+version = "0.1.0"
+edition = "2021"
+description = "Memory-safe streaming generator for 1 B+ transaction records using Rayon for parallelism"
+
+[[bin]]
+name = "generate"
+path = "src/main.rs"
+
+[dependencies]
+# Work-stealing thread pool – Rust's multiprocessing equivalent
+rayon = "1.10"
+# Fast, seeded PRNG (Xoshiro128++ via SmallRng)
+rand = { version = "0.8", features = ["small_rng"] }
+
+[profile.release]
+opt-level     = 3
+lto           = "fat"   # cross-crate inlining
+codegen-units = 1       # single code-gen unit for max optimisation
+panic         = "abort" # smaller binary, skips unwinding overhead
