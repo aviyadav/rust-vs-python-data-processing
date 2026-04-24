@@ -1,0 +1,7 @@
+cluster0 - namespace0 - pod0 - container0 - Log Line 1
+cluster0 - namespace0 - pod0 - container0 - Log Line 2
+cluster0 - namespace0 - pod0 - container0 - Log Line 3
+cluster0 - namespace0 - pod0 - container0 - Log Line 4
+cluster0 - namespace0 - pod0 - container0 - Log Line 5
+cluster0 - namespace0 - pod0 - container0 - Log Line 6
+cluster0 - namespace0 - pod0 - container0 - Log Line 7
