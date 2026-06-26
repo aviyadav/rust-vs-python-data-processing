@@ -1,0 +1,11 @@
+POST http://127.0.0.1:3000/validate
+Content-Type: multipart/form-data; boundary=Boundary123
+
+--Boundary123
+Content-Disposition: form-data; name="file"; filename="test.csv"
+Content-Type: text/csv
+
+< ./test.csv
+--Boundary123--
+
+###
