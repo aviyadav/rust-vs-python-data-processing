@@ -1,0 +1,5 @@
+{
+  "name": "benchmark",
+  "module": "benchmark.ts",
+  "type": "module"
+}
