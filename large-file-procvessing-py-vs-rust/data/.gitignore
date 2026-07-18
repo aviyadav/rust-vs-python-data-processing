@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Rust
+/target/
+
+# Generated output
+summary.csv
+summary_polars.csv
+summary_rust.csv
+
+# OS
+.DS_Store
+Thumbs.db
