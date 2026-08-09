@@ -1,0 +1,31 @@
+<html>
+<head>
+    <title>Tauri App</title>
+</head>
+<body>
+    <!--<h3>Hello World!</h3>-->
+
+    <button onclick="doLogin()">Login</button>
+    <button onclick="getUser()">Get User</button>
+    <script>
+        const invoke = window.__TAURI__.core.invoke;
+
+        async function getUser() {
+            let user = await invoke("get_user");
+            console.log(user);
+        }
+
+        async function doLogin() {
+            let username = "AppUser";
+            let password = "AppPassword";
+            let email = "AppUser@example.com";
+
+            let result = await invoke("login", { username, password, email });
+            console.log(result);
+            if (result) {
+                alert("Logged in as " + username);
+            }
+        }
+    </script>
+</body>
+</html>
