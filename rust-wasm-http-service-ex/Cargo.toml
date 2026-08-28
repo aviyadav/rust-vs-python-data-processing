@@ -1,0 +1,24 @@
+# Cargo.toml
+[package]
+name = "my-wasm-http-service"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+# The `wasi` crate gives us all the goodies for WASI interfaces.
+# 0.14.7+ re-exports the `wasip2` crate: the handler trait lives at
+# `wasi::exports::http::incoming_handler::Guest` and the `export!` macro
+# bundles its own wit-bindgen runtime, so no extra deps are needed.
+wasi = "0.14.7"
+# For easy URL query parameter parsing, 'url' is pretty indispensable!
+url = "2.5"
+[lib]
+crate-type = ["cdylib"]
+[package.metadata.component]
+# This line tells cargo-component that our component belongs to the 'component' group
+# and its name is 'my-wasm-http-service'. Kinda like its full identity.
+package = "component:my-wasm-http-service"
+# This 'proxy = true' flag is the magic! It automatically configures our component
+# to use the 'wasi:http/proxy' world.
+# What does that mean? It means our component will implement the WASI HTTP
+# incoming-handler interface. Bam! Instant HTTP service, no fussing with custom WIT.
+proxy = true
