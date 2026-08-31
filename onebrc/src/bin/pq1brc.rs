@@ -1,11 +1,13 @@
 use datafusion::arrow::datatypes::{DataType, Field, Schema};
 use datafusion::functions_aggregate::expr_fn::{avg, max, min};
 use datafusion::prelude::*;
+use std::time::Instant;
 use tokio::runtime::Runtime;
 
 fn main() {
+    let start = Instant::now();
     // put in the path
-    let path = "./data/weather_stations.parquet";
+    let path = "./data/measurements.parquet";
 
     let rt = Runtime::new().unwrap();
     let ctx = SessionContext::new();
@@ -37,5 +39,6 @@ fn main() {
 
     let pretty = datafusion::arrow::util::pretty::pretty_format_batches(&results.unwrap()).unwrap();
 
+    println!("Time taken: {:.3?}", start.elapsed());
     println!("{pretty}");
 }

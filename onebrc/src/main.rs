@@ -1,11 +1,13 @@
 use datafusion::arrow::datatypes::{DataType, Field, Schema};
 use datafusion::functions_aggregate::expr_fn::{avg, max, min};
 use datafusion::prelude::*;
+use std::time::Instant;
 use tokio::runtime::Runtime;
 
 fn main() {
+    let start = Instant::now();
     // put in the path
-    let path = "./data/weather_stations.csv";
+    let path = "./data/measurements.txt";
 
     let rt = Runtime::new().unwrap();
     let ctx = SessionContext::new();
@@ -18,7 +20,7 @@ fn main() {
     let opts = CsvReadOptions::new()
         .delimiter(b';')
         .has_header(false)
-        .file_extension("csv")
+        .file_extension("txt")
         .schema(&schema);
 
     let df = rt.block_on(ctx.read_csv(path, opts)).unwrap();
@@ -41,5 +43,6 @@ fn main() {
 
     let pretty = datafusion::arrow::util::pretty::pretty_format_batches(&results.unwrap()).unwrap();
 
+    println!("Time taken: {:.3?}", start.elapsed());
     println!("{pretty}");
 }

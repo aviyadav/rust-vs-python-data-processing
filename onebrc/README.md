@@ -68,27 +68,93 @@ After generating, you can point `main.rs` (CSV) or `pq1brc.rs` (Parquet) at the 
 
 ---
 
-### 2. Run the CSV Query
-To run the main CSV processing binary on the local `data/weather_stations.csv` file:
+### 2. Run the CSV Query (`src/main.rs`, binary `onebrc`)
+
+Reads a `station;temperature` CSV file and prints min/mean/max temperature per station, sorted by station name.
 
 ```bash
+# default binary (default-run = "onebrc" in Cargo.toml)
 cargo run --release
+
+# explicit form
+cargo run --release --bin onebrc
+
+# build only, then run the binary directly
+cargo build --release --bin onebrc
+target/release/onebrc
 ```
 
-### 3. Convert CSV to Parquet
-Parquet is columnar, compressed, and much faster to scan. You can convert your local CSV file to Parquet using the `convert` binary:
+**Input**: edit the `let path = ...` line in `src/main.rs` (currently `./data/measurements.txt`). The file's extension must match the `file_extension` option (currently `txt`).
+
+### 3. Convert CSV to Parquet (`src/bin/convert.rs`, binary `convert`)
+
+Parquet is columnar, compressed, and much faster to scan. Reads `./data/weather_stations.csv` and outputs `./data/weather_stations.parquet`.
 
 ```bash
 cargo run --release --bin convert
-```
-This reads `./data/weather_stations.csv` and outputs `./data/weather_stations.parquet`.
 
-### 4. Run the Parquet Query
-Once converted, process the Parquet dataset using:
+# build only, then run the binary directly
+cargo build --release --bin convert
+target/release/convert
+```
+
+**Input/output**: edit the `input`/`output` variables in `src/bin/convert.rs`.
+
+### 4. Run the Parquet Query (`src/bin/pq1brc.rs`, binary `pq1brc`)
+
+Same query as the CSV binary, but reading a Parquet file — faster and compressed.
 
 ```bash
 cargo run --release --bin pq1brc
+
+# build only, then run the binary directly
+cargo build --release --bin pq1brc
+target/release/pq1brc
 ```
+
+**Input**: edit the `let path = ...` line in `src/bin/pq1brc.rs` (currently `./data/weather_stations.parquet`).
+
+### 5. Generate Test Data (`src/bin/generate.rs`, binary `generate`)
+
+See the [Generate Test Data](#1-generate-test-data) section above for full details and load-size examples.
+
+```bash
+cargo run --release --bin generate -- <rows> [output_path]
+```
+
+---
+
+## All Run Options — Quick Reference
+
+| Binary    | Source file             | Command                                   | Purpose |
+| --------- | ----------------------- | ----------------------------------------- | ------- |
+| `onebrc`  | `src/main.rs`           | `cargo run --release`                      | Query CSV, print min/mean/max per station |
+| `convert` | `src/bin/convert.rs`    | `cargo run --release --bin convert`        | Convert CSV to Parquet |
+| `pq1brc`  | `src/bin/pq1brc.rs`     | `cargo run --release --bin pq1brc`         | Query Parquet, print min/mean/max per station |
+| `generate`| `src/bin/generate.rs`   | `cargo run --release --bin generate -- <rows> [output_path]` | Generate synthetic data (up to 1B rows) |
+
+Notes:
+
+- `cargo run --release` with no `--bin` runs `onebrc` (set via `default-run = "onebrc"` in `Cargo.toml`).
+- Always use `--release`; debug builds are far too slow for large datasets.
+- All binaries resolve input paths relative to the directory you run from, so run from the crate root (`onebrc/`) or use absolute paths.
+
+---
+
+## Timing
+
+Every program measures its processing time with `std::time::Instant` and prints `Time taken: ...` at the end of execution, just before printing the result.
+
+| Program | What is timed | Sample time (same dataset) |
+| ------- | ------------- | --------------------------- |
+| `generate` | Row-generation loop only — station loading and temperature precomputation are excluded | 100K rows: ~10 ms |
+| `onebrc` | Full CSV pipeline: scan + aggregate + sort + collect (result formatting excluded) | ~11.2 s |
+| `convert` | CSV read + Parquet write | ~37.2 s |
+| `pq1brc` | Full Parquet pipeline: scan + aggregate + sort + collect (result formatting excluded) | ~7.3 s |
+
+Sample times were measured on the same generated dataset; your numbers will vary with hardware and dataset size. As the table shows, querying Parquet is roughly 35% faster than querying the equivalent CSV with DataFusion.
+
+---
 
 ---
 

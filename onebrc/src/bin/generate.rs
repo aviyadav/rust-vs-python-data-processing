@@ -2,6 +2,7 @@ use std::env;
 use std::fs::File;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::path::Path;
+use std::time::Instant;
 
 /// Fast xorshift64* PRNG — avoids pulling in a dependency and is much faster
 /// than the default CSPRNG for bulk data generation.
@@ -82,6 +83,10 @@ fn main() -> io::Result<()> {
     let file = File::create(&output)?;
     let mut out = BufWriter::with_capacity(8 * 1024 * 1024, file);
 
+    // Time only the row-generation loop; setup (station loading,
+    // temperature precompute) is excluded.
+    let start = Instant::now();
+
     // Fixed seed for reproducible output.
     let mut rng = Rng(0x9E3779B97F4A7C15);
     let report_every = rows / 10;
@@ -100,6 +105,7 @@ fn main() -> io::Result<()> {
     }
 
     out.flush()?;
+    println!("Time taken: {:.3?}", start.elapsed());
     println!("Wrote {rows} rows to {output}");
     Ok(())
 }

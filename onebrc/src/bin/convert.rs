@@ -1,11 +1,13 @@
 use datafusion::arrow::datatypes::{DataType, Field, Schema};
 use datafusion::dataframe::DataFrameWriteOptions;
 use datafusion::prelude::*;
+use std::time::Instant;
 use tokio::runtime::Runtime;
 
 fn main() {
-    let input = "./data/weather_stations.csv";
-    let output = "./data/weather_stations.parquet";
+    let start = Instant::now();
+    let input = "./data/measurements.txt";
+    let output = "./data/measurements.parquet";
 
     let rt = Runtime::new().unwrap();
     let ctx = SessionContext::new();
@@ -18,6 +20,7 @@ fn main() {
     let opts = CsvReadOptions::new()
         .delimiter(b';')
         .has_header(false)
+        .file_extension("txt")
         .schema(&schema);
 
     let df = rt.block_on(ctx.read_csv(input, opts)).unwrap();
@@ -25,5 +28,6 @@ fn main() {
     rt.block_on(df.write_parquet(output, DataFrameWriteOptions::new(), None))
         .unwrap();
 
+    println!("Time taken: {:.3?}", start.elapsed());
     println!("Wrote {output}");
 }
